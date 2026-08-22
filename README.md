@@ -2,6 +2,13 @@
 
 Front-end do projeto acadêmico MeuBairro, desenvolvido na disciplina Projeto Integrador II do curso de Tecnologia em Sistemas para Internet da UESPI/UAPI.
 
+## Integrantes
+
+- Hélio Mendes da Silva
+- Francisca Ranielly Ferreira de Araújo
+- Josemilton Felix Baptista
+- Kayo Mykael da Silva Santiago
+
 ## Objetivo
 
 Permitir que moradores registrem problemas do bairro, acompanhem o atendimento das denúncias e consultem informações da comunidade.
