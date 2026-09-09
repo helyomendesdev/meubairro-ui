@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
@@ -31,7 +31,14 @@ describe('MeuBairro routes', () => {
     expect(screen.getByText('Denúncias recentes')).toBeInTheDocument()
     expect(screen.getByText('Notícias do bairro')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Notificações' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Nova denúncia/ })).toHaveAttribute('href', '/denuncias/nova')
+  })
+
+  it('returns to the public login when the resident signs out', () => {
+    renderAt('/painel')
+    fireEvent.click(screen.getByRole('button', { name: 'Sair' }))
+    expect(screen.getByRole('heading', { name: 'Acesse sua conta' })).toBeInTheDocument()
   })
 
   it('renders the Entrega 1 new report form', () => {

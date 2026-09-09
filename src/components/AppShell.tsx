@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from './Logo'
 
 type IconName = 'home' | 'file' | 'map' | 'news' | 'bell'
@@ -23,6 +23,7 @@ type AppShellProps = {
 
 export function AppShell({ children, pageTitle, showNotifications = false }: AppShellProps) {
   const location = useLocation()
+  const navigate = useNavigate()
   const isNewReport = location.pathname === '/denuncias/nova'
   const navigation = [
     { label: 'Visão geral', to: '/painel', icon: 'home' as const },
@@ -56,6 +57,7 @@ export function AppShell({ children, pageTitle, showNotifications = false }: App
           <div className="top-actions">
             {showNotifications && <button aria-label="Notificações" className="icon-button" type="button"><Icon name="bell" /></button>}
             <span className="role-chip">Morador</span>
+            <button className="logout-button" onClick={() => navigate('/')} type="button">Sair</button>
           </div>
         </header>
         {children}
