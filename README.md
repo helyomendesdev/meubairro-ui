@@ -60,7 +60,7 @@ Também foram incluídas as rotas auxiliares de `Minhas denúncias` e `Notícias
 - Repositório: https://github.com/helyomendesdev/meubairro-ui
 - Branch principal: `main`
 - Quadro Trello: https://trello.com/b/P9AG1QOV/meubairro
-- Primeiro commit: [Configuração inicial do projeto](https://github.com/helyomendesdev/meubairro-ui/commit/d35bf3fa29d9349790ca4a1ceefbd22473d2f13c)
+- Primeiro commit: [Configuração inicial do projeto](https://github.com/helyomendesdev/meubairro-ui/commit/28aa88bd9cad45dd2841831253fd8385bc8ad635)
 
 #### Validação
 
