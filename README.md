@@ -107,16 +107,17 @@ npx tsc --noEmit
 npm run build
 ```
 
-## Próxima etapa
+## Entrega 3 — Projeto back-end
 
-### Entrega 3 — Back-end e integração UI/API
+A Entrega 3 mantém a API em repositório separado e não antecipa a integração UI/API. A API do MeuBairro está em:
 
-A Entrega 3 ainda está planejada. O Trello contém 16 tarefas futuras, divididas em:
+- Repositório: https://github.com/helyomendesdev/meubairro-api
+- Branch estável: `main`
+- Commit funcional: `f85510f`
 
-- 8 tarefas de API.
-- 8 tarefas de UI e integração.
+A integração UI/API foi revertida no commit `0ef7f83` e será retomada na Entrega 4, cujo período oficial é de 13/10/2026 a 30/11/2026. A UI deste repositório permanece no estado da Entrega 2, sem cliente HTTP, autenticação persistida ou rotas protegidas antecipadas.
 
-Essas tarefas permanecem em `To Do` até serem implementadas e validadas.
+No Trello, as oito tarefas que dependem de integração foram reclassificadas como `[ENTREGA 4][UI/API]` e permanecem em `To Do`. A obrigação formal de oito tarefas de UI da Entrega 3 permanece pendente até que sejam definidas tarefas de UI que não antecipem a integração, se essa obrigação for mantida para a submissão.
 
 ## Prazos acadêmicos
 
