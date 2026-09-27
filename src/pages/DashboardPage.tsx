@@ -1,8 +1,19 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
-import { useAuth } from '../auth/useAuth'
-import { categoryLabel, formatDate, statusClass, statusLabel } from '../api/presenters'
-import { useMyReports } from '../hooks/useMyReports'
+
+const stats = [
+  ['Minhas denúncias', '5', 'Total registrado', 'green'],
+  ['Em análise', '1', 'Aguardando atualização', 'yellow'],
+  ['Resolvidas', '4', 'Ocorrências concluídas', 'green'],
+  ['Notícias novas', '3', 'Desde seu último acesso', 'blue'],
+]
+
+const reports = [
+  ['Lixo acumulado na rua', 'Rua Principal, Parque Piauí', 'Lixo', '12/08/2026', 'Resolvida'],
+  ['Vazamento de água e esgoto', 'Av. Marechal Castelo Branco', 'Saneamento', '08/08/2026', 'Em análise'],
+  ['Buraco no asfaltamento', 'Rua das Palmeiras', 'Vias', '03/08/2026', 'Resolvida'],
+  ['Alagamento de rua', 'Av. Industrial', 'Drenagem', '29/07/2026', 'Resolvida'],
+]
 
 const news = [
   'Mutirão de limpeza neste sábado',
@@ -11,22 +22,12 @@ const news = [
 ]
 
 export function DashboardPage() {
-  const { user } = useAuth()
-  const { reports, isLoading, error } = useMyReports()
-  const firstName = user?.name.split(' ')[0] ?? 'morador'
-  const stats = [
-    ['Minhas denúncias', String(reports.length), 'Total registrado', 'green'],
-    ['Em análise', String(reports.filter((report) => report.status === 'EM_ANALISE').length), 'Aguardando atualização', 'yellow'],
-    ['Resolvidas', String(reports.filter((report) => report.status === 'RESOLVIDA').length), 'Ocorrências concluídas', 'green'],
-    ['Notícias novas', '3', 'Desde seu último acesso', 'blue'],
-  ] as const
-
   return (
     <AppShell pageTitle="Visão geral" showNotifications>
       <main className="content">
         <div className="page-heading">
           <div>
-            <p className="eyebrow">Bom dia, {firstName}</p>
+            <p className="eyebrow">Bom dia, João</p>
             <h1>Acompanhe seu bairro</h1>
             <p className="lead">Veja suas denúncias e as atualizações mais recentes da comunidade.</p>
           </div>
@@ -46,28 +47,21 @@ export function DashboardPage() {
         <div className="dashboard-grid">
           <section className="panel">
             <header className="panel-head"><h2>Denúncias recentes</h2><Link to="/denuncias">Ver todas</Link></header>
-            {error && <p aria-live="polite" className="inline-error" role="alert">{error}</p>}
-            {isLoading ? (
-              <p className="empty-state">Carregando suas denúncias...</p>
-            ) : reports.length === 0 ? (
-              <p className="empty-state">Você ainda não registrou nenhuma denúncia.</p>
-            ) : (
-              <div className="table-scroll">
-                <table>
-                  <thead><tr><th>Ocorrência</th><th>Categoria</th><th>Data</th><th>Status</th></tr></thead>
-                  <tbody>
-                    {reports.slice(0, 4).map((report) => (
-                      <tr key={report.id}>
-                        <td><strong>{report.title}</strong><small>{report.location}</small></td>
-                        <td><span className="neutral-badge">{categoryLabel(report.category)}</span></td>
-                        <td>{formatDate(report.recorded_at)}</td>
-                        <td><span className={statusClass(report.status)}>{statusLabel(report.status)}</span></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <div className="table-scroll">
+              <table>
+                <thead><tr><th>Ocorrência</th><th>Categoria</th><th>Data</th><th>Status</th></tr></thead>
+                <tbody>
+                  {reports.map(([title, address, category, date, status]) => (
+                    <tr key={title}>
+                      <td><strong>{title}</strong><small>{address}</small></td>
+                      <td><span className="neutral-badge">{category}</span></td>
+                      <td>{date}</td>
+                      <td><span className={status === 'Resolvida' ? 'status resolved' : 'status analysis'}>{status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section className="panel">

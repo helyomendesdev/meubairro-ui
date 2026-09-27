@@ -2,16 +2,13 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import App from './App'
-import { AuthProvider } from './auth/AuthContext'
 
 afterEach(cleanup)
 
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <AuthProvider demo>
-        <App />
-      </AuthProvider>
+      <App />
     </MemoryRouter>,
   )
 }
