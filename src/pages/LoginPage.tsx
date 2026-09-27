@@ -1,23 +1,13 @@
 import type { FormEvent } from 'react'
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Logo'
-import { useAuth } from '../auth/useAuth'
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { error, isLoading, login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    try {
-      await login(email, password)
-      navigate('/painel')
-    } catch {
-      // AuthContext exposes the API error in the form.
-    }
+    navigate('/painel')
   }
 
   return (
@@ -49,36 +39,19 @@ export function LoginPage() {
 
           <label className="field">
             <span>E-mail</span>
-            <input
-              autoComplete="email"
-              name="email"
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              type="email"
-              value={email}
-            />
+            <input defaultValue="morador@meubairro.com.br" name="email" type="email" />
           </label>
 
           <label className="field">
             <span>Senha</span>
-            <input
-              autoComplete="current-password"
-              name="password"
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              type="password"
-              value={password}
-            />
+            <input defaultValue="123456789" name="password" type="password" />
           </label>
 
           <div className="password-row">
             <Link to="/recuperar-senha">Esqueci minha senha</Link>
           </div>
 
-          {error && <p aria-live="polite" className="form-error">{error}</p>}
-          <button className="primary-button" disabled={isLoading} type="submit">
-            {isLoading ? 'Entrando...' : 'Entrar'}
-          </button>
+          <button className="primary-button" type="submit">Entrar</button>
 
           <div className="divider"><span>ou</span></div>
           <p className="login-foot">Ainda não possui conta? <Link to="/cadastro">Cadastre-se</Link></p>
