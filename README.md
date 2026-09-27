@@ -13,92 +13,110 @@ Front-end do projeto acadêmico MeuBairro, desenvolvido na disciplina Projeto In
 
 Permitir que moradores registrem problemas do bairro, acompanhem o atendimento das denúncias e consultem informações da comunidade.
 
+## Repositórios
+
+- UI: https://github.com/helyomendesdev/meubairro-ui
+- API: https://github.com/helyomendesdev/meubairro-api
+- Trello: https://trello.com/b/P9AG1QOV/meubairro
+
 ## Organização das entregas
 
 ### Entrega 1 — Concepção e planejamento
 
 Entrega concluída com os artefatos iniciais do projeto:
 
-- Revisão do Projeto Integrador I.
-- Documentação inicial com diagramas UML.
-- Prototipação das telas em versões desktop e mobile.
-- Criação e configuração do quadro do projeto no Trello.
-- Criação e priorização do backlog.
-- Organização da primeira sprint.
-- Confirmação dos integrantes do grupo.
-
-Quadro de gestão:
-
-- Trello: https://trello.com/b/P9AG1QOV/meubairro
+- revisão do Projeto Integrador I;
+- documentação inicial com diagramas UML;
+- prototipação das telas desktop e mobile;
+- criação e configuração do quadro do projeto no Trello;
+- criação, priorização e organização do backlog;
+- organização da primeira sprint;
+- confirmação dos integrantes do grupo.
 
 ### Entrega 2 — Projeto front-end
 
-Entrega concluída. O objetivo foi definir a stack front-end, criar e versionar o projeto UI, integrar o código ao repositório remoto e implementar as tarefas da primeira sprint.
+Entrega concluída. A interface foi construída e versionada com:
 
-#### Tecnologias definidas
+- React 19;
+- TypeScript;
+- Vite;
+- Tailwind CSS;
+- React Router;
+- Vitest e Testing Library;
+- Oxlint.
 
-- React 19
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- Vitest
-- Testing Library
-- Oxlint
+Funcionalidades da interface:
 
-#### Funcionalidades implementadas na Sprint 1
+1. tela de login responsiva;
+2. cadastro de morador;
+3. painel do morador com resumo, denúncias recentes e notícias;
+4. formulário de nova denúncia;
+5. lista de minhas denúncias;
+6. mapa de denúncias com filtros, lista e marcações;
+7. rotas auxiliares de notícias e navegação mobile.
 
-1. Tela de login responsiva.
-2. Painel do morador com resumo, denúncias recentes e notícias.
-3. Formulário de nova denúncia com localização aproximada.
-4. Mapa de denúncias com filtros, lista e marcações.
+Aplicação publicada anteriormente no GitHub Pages:
 
-Também foram incluídas as rotas auxiliares de `Minhas denúncias` e `Notícias` para manter a navegação funcional.
+https://helyomendesdev.github.io/meubairro-ui/
 
-#### Versionamento e colaboração
+### Entrega 3 — Projeto back-end e integração inicial UI/API
 
-- Repositório: https://github.com/helyomendesdev/meubairro-ui
-- Branch principal: `main`
-- Quadro Trello: https://trello.com/b/P9AG1QOV/meubairro
-- Primeiro commit: [Configuração inicial do projeto](https://github.com/helyomendesdev/meubairro-ui/commit/28aa88bd9cad45dd2841831253fd8385bc8ad635)
+A Entrega 3 exige stack back-end definida, repositório separado, API versionada e tarefas organizadas no Trello. A API foi implementada no repositório separado `meubairro-api` com:
 
-#### Validação
+- Python 3.12+;
+- FastAPI e Uvicorn;
+- SQLAlchemy 2;
+- SQLite para desenvolvimento e PostgreSQL configurável para produção;
+- JWT para autenticação;
+- Argon2 para hash de senhas;
+- pytest, HTTPX, Ruff e uv.
 
-A implementação foi validada com:
+A integração inicial da UI com a API cobre:
 
-```bash
-npm test
-npm run lint
-npx tsc --noEmit
-npm run build
-```
+- login e persistência da sessão JWT;
+- hidratação da sessão por `GET /api/v1/auth/me`;
+- cadastro de morador;
+- proteção das rotas autenticadas;
+- criação de denúncia por `POST /api/v1/reports`;
+- listagem das denúncias do morador;
+- filtros de status, categoria e texto no mapa;
+- estados de carregamento, erro e lista vazia.
 
-Resultados registrados:
+Endpoints utilizados pela UI:
 
-- 5 testes automatizados aprovados.
-- Lint aprovado.
-- Type-check aprovado.
-- Build de produção aprovado.
-- Layout verificado em desktop e mobile.
+- `POST /api/v1/auth/login`;
+- `POST /api/v1/auth/register`;
+- `GET /api/v1/auth/me`;
+- `POST /api/v1/reports`;
+- `GET /api/v1/reports/mine`;
+- `GET /api/v1/reports`.
 
-#### CI/CD e deploy
-
-O projeto possui pipeline automatizado no GitHub Actions. O CI executa instalação das dependências, lint, type-check, build e testes. Após a aprovação, o CD publica a aplicação no GitHub Pages.
-
-- Workflow: https://github.com/helyomendesdev/meubairro-ui/actions
-- Execução validada: https://github.com/helyomendesdev/meubairro-ui/actions/runs/34407269075
-- Aplicação publicada: https://helyomendesdev.github.io/meubairro-ui/
+A integração usa `VITE_API_BASE_URL`. Em desenvolvimento, o padrão é `http://127.0.0.1:8000/api/v1`.
 
 ## Execução local
 
-Pré-requisitos: Node.js e npm instalados.
+Pré-requisitos: Node.js, npm, Python 3.12+ e uv.
+
+1. Inicie a API em outro terminal:
 
 ```bash
+cd /Users/helyomendes/Projects/meubairro-api
+uv sync --dev
+uv run uvicorn app.main:app --reload
+```
+
+2. Configure a UI:
+
+```bash
+cd /Users/helyomendes/Projects/meubairro-ui
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-Para validar o projeto:
+Se a API estiver em outra URL, ajuste `VITE_API_BASE_URL` no `.env`.
+
+## Validação
 
 ```bash
 npm test
@@ -107,20 +125,40 @@ npx tsc --noEmit
 npm run build
 ```
 
-## Próxima etapa
+Validação local desta integração:
 
-### Entrega 3 — Back-end e integração UI/API
+- 11 testes automatizados aprovados;
+- testes do cliente tipado para login e Authorization Bearer;
+- teste de hidratação da sessão autenticada;
+- teste de criação de denúncia e retorno à lista;
+- teste de filtro do mapa convertido em query string;
+- lint executado com avisos não bloqueantes do plugin React;
+- type-check aprovado;
+- build de produção aprovado.
 
-A Entrega 3 ainda está planejada. O Trello contém 16 tarefas futuras, divididas em:
+A API possui validação própria no repositório `meubairro-api`:
 
-- 8 tarefas de API.
-- 8 tarefas de UI e integração.
+```bash
+uv run ruff check .
+uv run python -m compileall -q app tests
+uv run pytest -q
+```
 
-Essas tarefas permanecem em `To Do` até serem implementadas e validadas.
+## CI/CD
 
-## Prazos acadêmicos
+O GitHub Actions executa instalação, lint, type-check, build e testes. O deploy existente publica a UI no GitHub Pages quando há push em `main`.
+
+- Workflow: https://github.com/helyomendesdev/meubairro-ui/actions
+- API Actions: https://github.com/helyomendesdev/meubairro-api/actions
+
+A UI atualmente espera a API em uma URL configurada por ambiente. O GitHub Pages não fornece um back-end; para uso público é necessário publicar a API e configurar `VITE_API_BASE_URL` no build/deploy.
+
+## Entrega acadêmica
+
+Os cartões do Trello devem manter separadas as obrigações formais da Entrega 3 e as tarefas de implementação da API/UI. A integração completa e o deploy público da API permanecem dependentes da infraestrutura e das evidências exigidas pela disciplina.
+
+## Prazos registrados
 
 - Entrega 1: concluída.
-- Entrega 2: concluída.
-- Entrega 3: próxima etapa do projeto.
-- Submissão da Entrega 2 no SIGAA: até 13/09/2026 às 23h59.
+- Entrega 2: concluída e submetida no SIGAA.
+- Entrega 3: execução de 14/09/2026 a 10/10/2026; submissão até 11/10/2026 às 23h59.

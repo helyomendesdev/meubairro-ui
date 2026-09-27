@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
+import { useAuth } from '../auth/useAuth'
 import { Logo } from './Logo'
 
 type IconName = 'home' | 'file' | 'map' | 'news' | 'bell'
@@ -21,10 +22,21 @@ type AppShellProps = {
   showNotifications?: boolean
 }
 
+function initials(name: string) {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+}
+
 export function AppShell({ children, pageTitle, showNotifications = false }: AppShellProps) {
   const location = useLocation()
-  const navigate = useNavigate()
+  const { logout, user } = useAuth()
   const isNewReport = location.pathname === '/denuncias/nova'
+  const displayName = user?.name ?? 'Morador'
   const navigation = [
     { label: 'Visão geral', to: '/painel', icon: 'home' as const },
     { label: isNewReport ? 'Nova denúncia' : 'Minhas denúncias', to: isNewReport ? '/denuncias/nova' : '/denuncias', icon: 'file' as const },
@@ -46,8 +58,8 @@ export function AppShell({ children, pageTitle, showNotifications = false }: App
           ))}
         </nav>
         <div className="sidebar-user">
-          <span className="avatar">JS</span>
-          <div><strong>João da Silva</strong><small>Morador · Centro</small></div>
+          <span className="avatar">{initials(displayName)}</span>
+          <div><strong>{displayName}</strong><small>{user?.role === 'ADMIN' ? 'Administrador' : `Morador · ${user?.neighborhood ?? 'Centro'}`}</small></div>
         </div>
       </aside>
 
@@ -56,8 +68,8 @@ export function AppShell({ children, pageTitle, showNotifications = false }: App
           <strong>{pageTitle}</strong>
           <div className="top-actions">
             {showNotifications && <button aria-label="Notificações" className="icon-button" type="button"><Icon name="bell" /></button>}
-            <span className="role-chip">Morador</span>
-            <button className="logout-button" onClick={() => navigate('/')} type="button">Sair</button>
+            <span className="role-chip">{user?.role === 'ADMIN' ? 'Administrador' : 'Morador'}</span>
+            <button className="logout-button" onClick={logout} type="button">Sair</button>
           </div>
         </header>
         {children}
