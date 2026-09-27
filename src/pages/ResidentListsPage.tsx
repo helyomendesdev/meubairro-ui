@@ -1,11 +1,7 @@
+import { Link } from 'react-router-dom'
+import { categoryLabel, formatDate, statusClass, statusLabel } from '../api/presenters'
+import { useMyReports } from '../hooks/useMyReports'
 import { AppShell } from '../components/AppShell'
-
-const reports = [
-  ['Lixo acumulado na rua', 'Rua Principal, Parque Piauí', 'Resolvida'],
-  ['Vazamento de água e esgoto', 'Av. Marechal Castelo Branco', 'Em análise'],
-  ['Buraco no asfaltamento', 'Rua das Palmeiras', 'Resolvida'],
-  ['Alagamento de rua', 'Av. Industrial', 'Resolvida'],
-]
 
 const news = [
   ['Mutirão de limpeza neste sábado', 'A comunidade realizará uma ação de limpeza nas principais ruas do bairro.'],
@@ -14,13 +10,30 @@ const news = [
 ]
 
 export function ReportsPage() {
+  const { reports, isLoading, error } = useMyReports()
+
   return (
     <AppShell pageTitle="Minhas denúncias">
       <main className="content">
-        <div className="page-heading"><div><p className="eyebrow">Acompanhamento</p><h1>Minhas denúncias</h1><p className="lead">Consulte o andamento das ocorrências registradas.</p></div></div>
-        <section className="list-grid">
-          {reports.map(([title, address, status]) => <article className="list-card" key={title}><div><h2>{title}</h2><p>{address}</p></div><span className={status === 'Resolvida' ? 'status resolved' : 'status analysis'}>{status}</span></article>)}
-        </section>
+        <div className="page-heading">
+          <div><p className="eyebrow">Acompanhamento</p><h1>Minhas denúncias</h1><p className="lead">Consulte o andamento das ocorrências registradas.</p></div>
+          <Link className="primary-link-button" to="/denuncias/nova">+ <span>Nova denúncia</span></Link>
+        </div>
+        {error && <p aria-live="polite" className="form-error" role="alert">{error}</p>}
+        {isLoading ? (
+          <p className="empty-state">Carregando suas denúncias...</p>
+        ) : reports.length === 0 ? (
+          <section className="empty-state empty-state--card"><h2>Nenhuma denúncia registrada</h2><p>Quando você registrar uma ocorrência, ela aparecerá aqui.</p><Link className="primary-link-button" to="/denuncias/nova">Registrar denúncia</Link></section>
+        ) : (
+          <section className="list-grid">
+            {reports.map((report) => (
+              <article className="list-card" key={report.id}>
+                <div><h2>{report.title}</h2><p>{report.location} · {categoryLabel(report.category)} · {formatDate(report.recorded_at)}</p></div>
+                <span className={statusClass(report.status)}>{statusLabel(report.status)}</span>
+              </article>
+            ))}
+          </section>
+        )}
       </main>
     </AppShell>
   )
