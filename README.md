@@ -117,7 +117,7 @@ A Entrega 3 mantém a API em repositório separado e não antecipa a integraçã
 
 A integração UI/API foi revertida no commit `0ef7f83` e será retomada na Entrega 4, cujo período oficial é de 13/10/2026 a 30/11/2026. A UI deste repositório permanece no estado da Entrega 2, sem cliente HTTP, autenticação persistida ou rotas protegidas antecipadas.
 
-No Trello, as oito tarefas que dependem de integração foram reclassificadas como `[ENTREGA 4][UI/API]` e permanecem em `To Do`. A obrigação formal de oito tarefas de UI da Entrega 3 permanece pendente até que sejam definidas tarefas de UI que não antecipem a integração, se essa obrigação for mantida para a submissão.
+No Trello, as oito tarefas de UI não integradas da Entrega 3 estão concluídas e documentadas individualmente. As tarefas de integração UI/API estão registradas separadamente como `[ENTREGA 4][UI/API]` em `To Do` e não foram antecipadas.
 
 ## Prazos acadêmicos
 
