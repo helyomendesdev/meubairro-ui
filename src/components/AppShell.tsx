@@ -1,6 +1,23 @@
 import type { ReactNode } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/useAuth'
 import { Logo } from './Logo'
+
+function roleLabel(role: string): string {
+  if (role === 'ORGAO') return 'Órgão público'
+  if (role === 'ADMIN') return 'Administrador'
+  return 'Morador'
+}
+
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('') || '?'
+}
+
 
 type IconName = 'home' | 'file' | 'map' | 'news' | 'bell'
 
@@ -24,6 +41,7 @@ type AppShellProps = {
 export function AppShell({ children, pageTitle, showNotifications = false }: AppShellProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user, logout } = useAuth()
   const isNewReport = location.pathname === '/denuncias/nova'
   const navigation = [
     { label: 'Visão geral', to: '/painel', icon: 'home' as const },
@@ -46,8 +64,11 @@ export function AppShell({ children, pageTitle, showNotifications = false }: App
           ))}
         </nav>
         <div className="sidebar-user">
-          <span className="avatar">JS</span>
-          <div><strong>João da Silva</strong><small>Morador · Centro</small></div>
+          <span className="avatar">{initials(user?.name ?? '')}</span>
+          <div>
+            <strong>{user?.name ?? 'Morador'}</strong>
+            <small>{roleLabel(user?.role ?? 'MORADOR')} · {user?.neighborhood ?? 'MeuBairro'}</small>
+          </div>
         </div>
       </aside>
 
@@ -56,8 +77,15 @@ export function AppShell({ children, pageTitle, showNotifications = false }: App
           <strong>{pageTitle}</strong>
           <div className="top-actions">
             {showNotifications && <button aria-label="Notificações" className="icon-button" type="button"><Icon name="bell" /></button>}
-            <span className="role-chip">Morador</span>
-            <button className="logout-button" onClick={() => navigate('/')} type="button">Sair</button>
+            <span className="role-chip">{roleLabel(user?.role ?? 'MORADOR')}</span>
+            <button
+              className="logout-button"
+              onClick={() => {
+                logout()
+                navigate('/')
+              }}
+              type="button"
+            >Sair</button>
           </div>
         </header>
         {children}
