@@ -1,13 +1,36 @@
-import type { FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, type FormEvent } from 'react'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { ApiError } from '../api/client'
+import { useAuth } from '../auth/useAuth'
 import { Logo } from '../components/Logo'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const { login, status } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  if (status === 'authenticated') {
+    return <Navigate replace to="/painel" />
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    navigate('/painel')
+    if (pending) {
+      return
+    }
+    setError(null)
+    setPending(true)
+    try {
+      await login(email.trim(), password)
+      navigate('/painel')
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Não foi possível entrar. Tente novamente.')
+    } finally {
+      setPending(false)
+    }
   }
 
   return (
@@ -39,19 +62,39 @@ export function LoginPage() {
 
           <label className="field">
             <span>E-mail</span>
-            <input defaultValue="morador@meubairro.com.br" name="email" type="email" />
+            <input
+              autoComplete="email"
+              name="email"
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="morador@meubairro.com.br"
+              required
+              type="email"
+              value={email}
+            />
           </label>
 
           <label className="field">
             <span>Senha</span>
-            <input defaultValue="123456789" name="password" type="password" />
+            <input
+              autoComplete="current-password"
+              name="password"
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Sua senha de acesso"
+              required
+              type="password"
+              value={password}
+            />
           </label>
 
           <div className="password-row">
             <Link to="/recuperar-senha">Esqueci minha senha</Link>
           </div>
 
-          <button className="primary-button" type="submit">Entrar</button>
+          <button className="primary-button" disabled={pending} type="submit">
+            {pending ? 'Entrando...' : 'Entrar'}
+          </button>
+
+          {error && <p className="form-error" role="alert">{error}</p>}
 
           <div className="divider"><span>ou</span></div>
           <p className="login-foot">Ainda não possui conta? <Link to="/cadastro">Cadastre-se</Link></p>
