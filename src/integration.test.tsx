@@ -182,8 +182,23 @@ describe('MeuBairro integration with the API (Entrega 4)', () => {
   })
 
   it('loads the reports map from the public endpoint and applies filters', async () => {
-    stubAuthed((url) => {
+    const { calls } = stubAuthed((url) => {
       if (url.includes('/api/v1/reports/mine')) return jsonResponse([])
+      if (url.includes('/api/v1/reports/stats')) {
+        return jsonResponse({
+          total: 3,
+          by_status: [
+            { status: 'ABERTA', count: 1 },
+            { status: 'EM_ANALISE', count: 1 },
+            { status: 'RESOLVIDA', count: 1 },
+          ],
+          by_category: [
+            { category: 'LIXO', count: 1 },
+            { category: 'ILUMINACAO', count: 1 },
+            { category: 'TERRENOS', count: 1 },
+          ],
+        })
+      }
       if (url.includes('/api/v1/reports')) {
         return jsonResponse([
           baseReport,
@@ -206,6 +221,15 @@ describe('MeuBairro integration with the API (Entrega 4)', () => {
       expect(screen.getByText('2 registros encontrados')).toBeInTheDocument()
     })
     expect(screen.queryByText('Lixo acumulado na rua')).not.toBeInTheDocument()
+
+    // isolando um único status, o filtro vai para a API (?status=)
+    await userEvent.click(screen.getByRole('checkbox', { name: /Em análise/ }))
+    await waitFor(() => {
+      expect(
+        calls.some((call) => call.url.includes('/api/v1/reports?status=RESOLVIDA')),
+      ).toBe(true)
+    })
+    expect(screen.getByText('Lâmpada queimada')).toBeInTheDocument()
 
     await userEvent.type(screen.getByLabelText('Buscar por rua ou ocorrência'), 'lâmpada')
     await waitFor(() => {

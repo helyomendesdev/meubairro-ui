@@ -35,6 +35,9 @@ function stubAuthenticatedApi() {
   stubApi((url) => {
     if (url.includes('/api/v1/auth/me')) return jsonResponse(user)
     if (url.includes('/api/v1/reports/mine')) return jsonResponse([])
+    if (url.includes('/api/v1/reports/stats')) {
+      return jsonResponse({ total: 0, by_status: [], by_category: [] })
+    }
     if (url.includes('/api/v1/reports')) return jsonResponse([])
     return undefined
   })

@@ -8,7 +8,7 @@ import {
   type ReportCategory,
   type ReportStatus,
 } from '../api/reports'
-import { usePublicReports } from '../hooks/usePublicReports'
+import { usePublicReports, useReportStats } from '../hooks/usePublicReports'
 
 const STATUSES = Object.keys(REPORT_STATUS_LABELS) as ReportStatus[]
 const CATEGORIES = Object.keys(REPORT_CATEGORY_LABELS) as ReportCategory[]
@@ -26,7 +26,6 @@ const STATUS_FILTER_LABELS: Record<ReportStatus, string> = {
 }
 
 export function MapPage() {
-  const { reports, loading, error, reload } = usePublicReports()
   const [query, setQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState<Record<ReportStatus, boolean>>({
     ABERTA: true,
@@ -37,19 +36,37 @@ export function MapPage() {
     () => Object.fromEntries(CATEGORIES.map((category) => [category, true])) as Record<ReportCategory, boolean>,
   )
 
+  // filtro server-side quando o usuário isola um único valor; caso contrário
+  // busca tudo e filtra localmente (busca textual e combinações)
+  const activeStatuses = STATUSES.filter((status) => statusFilter[status])
+  const activeCategories = CATEGORIES.filter((category) => categoryFilter[category])
+  const serverParams = {
+    status: activeStatuses.length === 1 ? activeStatuses[0] : null,
+    category: activeCategories.length === 1 ? activeCategories[0] : null,
+  }
+  const { reports, loading, error, reload } = usePublicReports(serverParams)
+
+  const { stats } = useReportStats()
+
   const statusCounts = useMemo(
     () =>
       Object.fromEntries(
-        STATUSES.map((status) => [status, reports.filter((report) => report.status === status).length]),
+        STATUSES.map((status) => [
+          status,
+          stats?.by_status.find((item) => item.status === status)?.count ?? 0,
+        ]),
       ) as Record<ReportStatus, number>,
-    [reports],
+    [stats],
   )
   const categoryCounts = useMemo(
     () =>
       Object.fromEntries(
-        CATEGORIES.map((category) => [category, reports.filter((report) => report.category === category).length]),
+        CATEGORIES.map((category) => [
+          category,
+          stats?.by_category.find((item) => item.category === category)?.count ?? 0,
+        ]),
       ) as Record<ReportCategory, number>,
-    [reports],
+    [stats],
   )
 
   const filtered = useMemo(() => {
@@ -117,7 +134,11 @@ export function MapPage() {
               </article>
             ))}
             {!loading && !error && filtered.length === 0 ? (
-              <p className="async-loading" role="status">Nenhuma ocorrência corresponde aos filtros selecionados.</p>
+              (stats?.total ?? reports.length) === 0 ? (
+                <p className="async-loading" role="status">Nenhuma ocorrência registrada ainda no bairro.</p>
+              ) : (
+                <p className="async-loading" role="status">Nenhuma ocorrência corresponde aos filtros selecionados.</p>
+              )
             ) : null}
           </div>
         </aside>

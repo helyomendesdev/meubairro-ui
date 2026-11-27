@@ -7,6 +7,7 @@ import {
   REPORT_STATUS_LABELS,
 } from '../api/reports'
 import { useMyReports } from '../hooks/useMyReports'
+import { useReportStats } from '../hooks/usePublicReports'
 import { useAuth } from '../auth/useAuth'
 
 const news = [
@@ -18,6 +19,7 @@ const news = [
 export function DashboardPage() {
   const { user } = useAuth()
   const { reports, loading, error, reload } = useMyReports()
+  const { stats: bairroStats } = useReportStats()
 
   const stats: Array<[string, string, string, string]> = [
     ['Minhas denúncias', String(reports.length), 'Total registrado', 'green'],
@@ -33,7 +35,12 @@ export function DashboardPage() {
       'Ocorrências concluídas',
       'green',
     ],
-    ['Notícias novas', '3', 'Desde seu último acesso', 'blue'],
+    [
+      'Denúncias no bairro',
+      bairroStats ? String(bairroStats.total) : '—',
+      'Registradas pela comunidade',
+      'blue',
+    ],
   ]
 
   const firstName = user?.name.trim().split(/\s+/)[0] ?? 'morador'
