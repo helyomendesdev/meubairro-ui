@@ -69,6 +69,29 @@ export function listMyReports(token: string): Promise<ReportRead[]> {
   return apiGet<ReportRead[]>('/api/v1/reports/mine', { token })
 }
 
-export function listPublicReports(): Promise<ReportRead[]> {
-  return apiGet<ReportRead[]>('/api/v1/reports')
+export interface PublicReportParams {
+  status?: ReportStatus | null
+  category?: ReportCategory | null
+}
+
+export function listPublicReports(params: PublicReportParams = {}): Promise<ReportRead[]> {
+  const search = new URLSearchParams()
+  if (params.status) {
+    search.set('status', params.status)
+  }
+  if (params.category) {
+    search.set('category', params.category)
+  }
+  const query = search.toString()
+  return apiGet<ReportRead[]>(query ? `/api/v1/reports?${query}` : '/api/v1/reports')
+}
+
+export interface ReportStats {
+  total: number
+  by_status: Array<{ status: ReportStatus; count: number }>
+  by_category: Array<{ category: ReportCategory; count: number }>
+}
+
+export function fetchReportStats(): Promise<ReportStats> {
+  return apiGet<ReportStats>('/api/v1/reports/stats')
 }

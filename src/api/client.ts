@@ -39,19 +39,25 @@ export interface ApiRequestOptions {
   timeoutMs?: number
 }
 
-async function errorDetail(response: Response): Promise<string> {
+async function errorPayload(response: Response): Promise<unknown> {
   try {
-    const payload: unknown = await response.json()
-    if (payload !== null && typeof payload === 'object') {
-      const detail = (payload as { detail?: unknown }).detail
-      if (typeof detail === 'string' && detail.trim() !== '') {
-        return detail
-      }
-    }
+    return await response.json()
   } catch {
-    // corpo sem JSON: usa o código HTTP na mensagem
+    return undefined
   }
-  return `Erro HTTP ${response.status}`
+}
+
+function messageFromPayload(payload: unknown, status: number): string {
+  if (payload !== null && typeof payload === 'object') {
+    const record = payload as { detail?: unknown; error?: unknown }
+    if (typeof record.detail === 'string' && record.detail.trim() !== '') {
+      return record.detail
+    }
+    if (typeof record.error === 'string' && record.error.trim() !== '') {
+      return record.error
+    }
+  }
+  return `Erro HTTP ${status}`
 }
 
 export async function request<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
@@ -77,8 +83,8 @@ export async function request<T>(path: string, options: ApiRequestOptions = {}):
     throw new ApiError(0, 'A API não respondeu (falha de rede ou timeout).', error)
   }
   if (!response.ok) {
-    const detail = await errorDetail(response)
-    throw new ApiError(response.status, detail, detail)
+    const payload = await errorPayload(response)
+    throw new ApiError(response.status, messageFromPayload(payload, response.status), payload)
   }
   if (response.status === 204) {
     return undefined as T

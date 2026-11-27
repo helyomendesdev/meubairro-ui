@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { fetchCurrentUser, loginRequest } from '../api/auth'
+import { ApiError } from '../api/client'
 import { clearSession, loadSession, saveSession } from '../api/session'
 import type { UserRead } from '../api/types'
 import { AuthContext, type AuthStatus } from './authContext'
@@ -24,12 +25,22 @@ export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
         setUser(me)
         setStatus('authenticated')
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (cancelled) {
           return
         }
-        clearSession()
-        setStatus('anonymous')
+        if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+          // sessão inválida confirmada pela API: limpa e volta ao login
+          clearSession()
+          setStatus('anonymous')
+          setToken(null)
+          setUser(null)
+          return
+        }
+        // falha de rede ou 5xx: mantém a sessão salva para nova tentativa
+        setToken(stored)
+        setUser(null)
+        setStatus('authenticated')
       })
     return () => {
       cancelled = true

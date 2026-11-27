@@ -11,7 +11,7 @@ export interface MyReportsState {
 }
 
 export function useMyReports(): MyReportsState {
-  const { status, token } = useAuth()
+  const { status, token, logout } = useAuth()
   const [reports, setReports] = useState<ReportRead[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,13 +35,18 @@ export function useMyReports(): MyReportsState {
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : 'Não foi possível carregar suas denúncias.',
-          )
+        if (cancelled) {
+          return
         }
+        if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+          logout()
+          return
+        }
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : 'Não foi possível carregar suas denúncias.',
+        )
       })
       .finally(() => {
         if (!cancelled) {
@@ -51,7 +56,7 @@ export function useMyReports(): MyReportsState {
     return () => {
       cancelled = true
     }
-  }, [status, token, reloadToken])
+  }, [status, token, reloadToken, logout])
 
   return { reports, loading, error, reload }
 }

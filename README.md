@@ -125,13 +125,16 @@ A UI consome a API real (FastAPI) em todas as telas de morador. A URL base vem d
 
 Funcionalidades integradas:
 
-- Cliente HTTP com timeout, `ApiError` e mensagens amigáveis (`src/api/client.ts`).
-- Login via `POST /api/v1/auth/login`, sessão persistida em `localStorage` e validada em `GET /api/v1/auth/me`, com rotas protegidas (`src/api/auth.ts`, `src/api/session.ts`, `src/auth/`).
-- Formulário de nova denúncia conectado a `POST /api/v1/reports`, com estado de envio e erro (`src/pages/NewReportPage.tsx`).
-- Painel do morador com dados reais de `GET /api/v1/reports/mine`: contadores calculados, tabela das denúncias e estado vazio (`src/pages/DashboardPage.tsx`).
-- Mapa de denúncias com dados de `GET /api/v1/reports`, filtros por status e categoria, busca por texto e contadores derivados (`src/pages/MapPage.tsx`).
+- Cliente HTTP com timeout, `ApiError` e mensagens amigáveis, lendo o payload de erro uniforme da API (`detail`/`error` e `fields` por campo em validação 422) (`src/api/client.ts`).
+- Login via `POST /api/v1/auth/login`, sessão persistida em `localStorage` e validada em `GET /api/v1/auth/me`, com rotas protegidas; a sessão só é descartada em 401/403 confirmado pela API (`src/api/auth.ts`, `src/api/session.ts`, `src/auth/`).
+- Formulário de nova denúncia conectado a `POST /api/v1/reports`, com estado de envio, erros por campo vindos do 422 da API e validação client-side de coordenadas (latitude -90..90, longitude -180..180) (`src/pages/NewReportPage.tsx`).
+- Painel do morador com dados reais de `GET /api/v1/reports/mine` e total do bairro via `GET /api/v1/reports/stats` (`src/pages/DashboardPage.tsx`).
+- Mapa de denúncias com dados de `GET /api/v1/reports`, contadores via `GET /api/v1/reports/stats`, filtro server-side (`?status=` / `?category=` quando um único valor está isolado), busca por texto e estado vazio distinto ("sem registros" × "sem resultados para os filtros") (`src/pages/MapPage.tsx`).
+- "Minhas denúncias" conectada a `GET /api/v1/reports/mine`, com carregamento, erro com "Tentar novamente" e estado vazio (`src/pages/ResidentListsPage.tsx`).
 - Estados de carregamento e de erro com botão "Tentar novamente" em todas as telas que consultam a API (`src/hooks/useMyReports.ts`, `src/hooks/usePublicReports.ts`, `src/components/AsyncState.tsx`).
-- Testes de integração UI/API com `fetch` simulado cobrindo login, painel, criação de denúncia, filtros do mapa e falhas de rede (`src/integration.test.tsx`).
+- Testes de integração UI/API com `fetch` simulado cobrindo login, painel, criação de denúncia, filtros server-side do mapa, erros por campo e falhas de rede (`src/integration.test.tsx`).
+
+Contrato ampliado consumido pela UI (implementado na API na Entrega 4): `GET /api/v1/reports/stats` (agregações por status e categoria), filtros `?status=`/`?category=` e paginação `?limit=`/`?offset=` com header `X-Total-Count` na listagem pública, `ETag`/`If-None-Match` (304), erro 422 uniforme com `fields`, e 401 com mensagem específica de sessão expirada.
 
 Para executar a integração localmente: suba a API (`uv run uvicorn app.main:app --port 8000` no repositório `meubairro-api`) e a UI (`npm run dev`), depois acesse `http://localhost:5173/meubairro-ui/`.
 
