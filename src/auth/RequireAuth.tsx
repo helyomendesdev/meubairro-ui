@@ -4,7 +4,7 @@ import { useAuth } from './useAuth'
 export function RequireAuth() {
   const { status } = useAuth()
   if (status === 'loading') {
-    return <main className="loading-screen" role="status">Carregando...</main>
+    return <output className="loading-screen">Carregando...</output>
   }
   if (status === 'anonymous') {
     return <Navigate replace to="/" />

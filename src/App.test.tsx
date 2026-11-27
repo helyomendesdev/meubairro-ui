@@ -67,7 +67,7 @@ describe('MeuBairro routes', () => {
   })
 
   it('renders the resident dashboard from Entrega 1', async () => {
-    saveSession({ token: 'jwt-test', user })
+    saveSession('jwt-test')
     stubAuthenticatedApi()
     renderAt('/painel')
     await waitFor(() => {
@@ -84,7 +84,7 @@ describe('MeuBairro routes', () => {
   })
 
   it('returns to the public login when the resident signs out', async () => {
-    saveSession({ token: 'jwt-test', user })
+    saveSession('jwt-test')
     stubAuthenticatedApi()
     renderAt('/painel')
     await waitFor(() => {
@@ -95,7 +95,7 @@ describe('MeuBairro routes', () => {
   })
 
   it('renders the Entrega 1 new report form', async () => {
-    saveSession({ token: 'jwt-test', user })
+    saveSession('jwt-test')
     stubAuthenticatedApi()
     renderAt('/denuncias/nova')
     await waitFor(() => {
@@ -113,7 +113,7 @@ describe('MeuBairro routes', () => {
   })
 
   it('keeps every resident navigation destination inside the authenticated shell', async () => {
-    saveSession({ token: 'jwt-test', user })
+    saveSession('jwt-test')
     stubAuthenticatedApi()
     renderAt('/denuncias')
     await waitFor(() => {
@@ -127,7 +127,7 @@ describe('MeuBairro routes', () => {
   })
 
   it('renders the Entrega 1 reports map and its filters', async () => {
-    saveSession({ token: 'jwt-test', user })
+    saveSession('jwt-test')
     stubAuthenticatedApi()
     renderAt('/mapa')
     await waitFor(() => {
@@ -155,10 +155,7 @@ describe('MeuBairro login flow', () => {
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Acompanhe seu bairro' })).toBeInTheDocument()
     })
-    expect(JSON.parse(localStorage.getItem('meubairro.session') ?? 'null')).toMatchObject({
-      token: 'jwt-novo',
-      user: { email: 'morador@meubairro.com.br' },
-    })
+    expect(localStorage.getItem('meubairro.session')).toBe('jwt-novo')
   })
 
   it('shows the API error message on invalid credentials', async () => {

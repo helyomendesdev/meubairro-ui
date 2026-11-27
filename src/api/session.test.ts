@@ -1,43 +1,27 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { clearSession, loadSession, saveSession } from './session'
-import type { UserRead } from './types'
-
-const user: UserRead = {
-  id: 1,
-  name: 'João da Silva',
-  email: 'morador@meubairro.com.br',
-  role: 'MORADOR',
-  neighborhood: 'Centro',
-  organization: null,
-  created_at: '2026-09-20T12:00:00Z',
-}
 
 afterEach(() => {
   clearSession()
 })
 
 describe('session', () => {
-  it('salva e recarrega a sessão', () => {
-    saveSession({ token: 'jwt-abc', user })
-    expect(loadSession()).toEqual({ token: 'jwt-abc', user })
+  it('salva e recarrega o token', () => {
+    saveSession('jwt-abc')
+    expect(loadSession()).toBe('jwt-abc')
   })
 
-  it('retorna null sem sessão salva', () => {
+  it('retorna null sem token salvo', () => {
     expect(loadSession()).toBeNull()
   })
 
-  it('retorna null com JSON inválido', () => {
-    localStorage.setItem('meubairro.session', '{não é json')
-    expect(loadSession()).toBeNull()
-  })
-
-  it('retorna null com estrutura incompleta', () => {
-    localStorage.setItem('meubairro.session', JSON.stringify({ token: 'jwt-abc' }))
+  it('retorna null com valor em branco', () => {
+    localStorage.setItem('meubairro.session', '   ')
     expect(loadSession()).toBeNull()
   })
 
   it('limpa a sessão', () => {
-    saveSession({ token: 'jwt-abc', user })
+    saveSession('jwt-abc')
     clearSession()
     expect(loadSession()).toBeNull()
   })
