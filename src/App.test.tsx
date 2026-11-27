@@ -32,7 +32,12 @@ function stubApi(handler: (url: string) => Response | undefined) {
 }
 
 function stubAuthenticatedApi() {
-  stubApi((url) => (url.includes('/api/v1/auth/me') ? jsonResponse(user) : undefined))
+  stubApi((url) => {
+    if (url.includes('/api/v1/auth/me')) return jsonResponse(user)
+    if (url.includes('/api/v1/reports/mine')) return jsonResponse([])
+    if (url.includes('/api/v1/reports')) return jsonResponse([])
+    return undefined
+  })
 }
 
 function renderAt(path: string) {
