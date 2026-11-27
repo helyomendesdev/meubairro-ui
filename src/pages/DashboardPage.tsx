@@ -1,19 +1,13 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
-
-const stats = [
-  ['Minhas denúncias', '5', 'Total registrado', 'green'],
-  ['Em análise', '1', 'Aguardando atualização', 'yellow'],
-  ['Resolvidas', '4', 'Ocorrências concluídas', 'green'],
-  ['Notícias novas', '3', 'Desde seu último acesso', 'blue'],
-]
-
-const reports = [
-  ['Lixo acumulado na rua', 'Rua Principal, Parque Piauí', 'Lixo', '12/08/2026', 'Resolvida'],
-  ['Vazamento de água e esgoto', 'Av. Marechal Castelo Branco', 'Saneamento', '08/08/2026', 'Em análise'],
-  ['Buraco no asfaltamento', 'Rua das Palmeiras', 'Vias', '03/08/2026', 'Resolvida'],
-  ['Alagamento de rua', 'Av. Industrial', 'Drenagem', '29/07/2026', 'Resolvida'],
-]
+import { ErrorBanner, LoadingState } from '../components/AsyncState'
+import {
+  formatDate,
+  REPORT_CATEGORY_LABELS,
+  REPORT_STATUS_LABELS,
+} from '../api/reports'
+import { useMyReports } from '../hooks/useMyReports'
+import { useAuth } from '../auth/useAuth'
 
 const news = [
   'Mutirão de limpeza neste sábado',
@@ -22,12 +16,34 @@ const news = [
 ]
 
 export function DashboardPage() {
+  const { user } = useAuth()
+  const { reports, loading, error, reload } = useMyReports()
+
+  const stats: Array<[string, string, string, string]> = [
+    ['Minhas denúncias', String(reports.length), 'Total registrado', 'green'],
+    [
+      'Em análise',
+      String(reports.filter((report) => report.status === 'EM_ANALISE').length),
+      'Aguardando atualização',
+      'yellow',
+    ],
+    [
+      'Resolvidas',
+      String(reports.filter((report) => report.status === 'RESOLVIDA').length),
+      'Ocorrências concluídas',
+      'green',
+    ],
+    ['Notícias novas', '3', 'Desde seu último acesso', 'blue'],
+  ]
+
+  const firstName = user?.name.trim().split(/\s+/)[0] ?? 'morador'
+
   return (
     <AppShell pageTitle="Visão geral" showNotifications>
       <main className="content">
         <div className="page-heading">
           <div>
-            <p className="eyebrow">Bom dia, João</p>
+            <p className="eyebrow">Bom dia, {firstName}</p>
             <h1>Acompanhe seu bairro</h1>
             <p className="lead">Veja suas denúncias e as atualizações mais recentes da comunidade.</p>
           </div>
@@ -47,21 +63,29 @@ export function DashboardPage() {
         <div className="dashboard-grid">
           <section className="panel">
             <header className="panel-head"><h2>Denúncias recentes</h2><Link to="/denuncias">Ver todas</Link></header>
-            <div className="table-scroll">
-              <table>
-                <thead><tr><th>Ocorrência</th><th>Categoria</th><th>Data</th><th>Status</th></tr></thead>
-                <tbody>
-                  {reports.map(([title, address, category, date, status]) => (
-                    <tr key={title}>
-                      <td><strong>{title}</strong><small>{address}</small></td>
-                      <td><span className="neutral-badge">{category}</span></td>
-                      <td>{date}</td>
-                      <td><span className={status === 'Resolvida' ? 'status resolved' : 'status analysis'}>{status}</span></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {loading ? <LoadingState label="Carregando suas denúncias..." /> : null}
+            {error ? <ErrorBanner message={error} onRetry={reload} /> : null}
+            {!loading && !error ? (
+              reports.length === 0 ? (
+                <p className="async-loading" role="status">Você ainda não registrou denúncias. Use o botão Nova denúncia.</p>
+              ) : (
+                <div className="table-scroll">
+                  <table>
+                    <thead><tr><th>Ocorrência</th><th>Categoria</th><th>Data</th><th>Status</th></tr></thead>
+                    <tbody>
+                      {reports.slice(0, 5).map((report) => (
+                        <tr key={report.id}>
+                          <td><strong>{report.title}</strong><small>{report.location}</small></td>
+                          <td><span className="neutral-badge">{REPORT_CATEGORY_LABELS[report.category]}</span></td>
+                          <td>{formatDate(report.recorded_at)}</td>
+                          <td><span className={report.status === 'RESOLVIDA' ? 'status resolved' : report.status === 'ABERTA' ? 'status open' : 'status analysis'}>{REPORT_STATUS_LABELS[report.status]}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )
+            ) : null}
           </section>
 
           <section className="panel">

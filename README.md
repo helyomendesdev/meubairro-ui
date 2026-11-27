@@ -119,6 +119,22 @@ A integração UI/API foi revertida no commit `0ef7f83` e será retomada na Entr
 
 No Trello, as oito tarefas de UI não integradas da Entrega 3 estão concluídas e documentadas individualmente. As tarefas de integração UI/API estão registradas separadamente como `[ENTREGA 4][UI/API]` em `To Do` e não foram antecipadas.
 
+## Entrega 4 — Integração UI/API
+
+A UI consome a API real (FastAPI) em todas as telas de morador. A URL base vem de `VITE_API_URL` (ver `.env.example`; padrão `http://localhost:8000`).
+
+Funcionalidades integradas:
+
+- Cliente HTTP com timeout, `ApiError` e mensagens amigáveis (`src/api/client.ts`).
+- Login via `POST /api/v1/auth/login`, sessão persistida em `localStorage` e validada em `GET /api/v1/auth/me`, com rotas protegidas (`src/api/auth.ts`, `src/api/session.ts`, `src/auth/`).
+- Formulário de nova denúncia conectado a `POST /api/v1/reports`, com estado de envio e erro (`src/pages/NewReportPage.tsx`).
+- Painel do morador com dados reais de `GET /api/v1/reports/mine`: contadores calculados, tabela das denúncias e estado vazio (`src/pages/DashboardPage.tsx`).
+- Mapa de denúncias com dados de `GET /api/v1/reports`, filtros por status e categoria, busca por texto e contadores derivados (`src/pages/MapPage.tsx`).
+- Estados de carregamento e de erro com botão "Tentar novamente" em todas as telas que consultam a API (`src/hooks/useMyReports.ts`, `src/hooks/usePublicReports.ts`, `src/components/AsyncState.tsx`).
+- Testes de integração UI/API com `fetch` simulado cobrindo login, painel, criação de denúncia, filtros do mapa e falhas de rede (`src/integration.test.tsx`).
+
+Para executar a integração localmente: suba a API (`uv run uvicorn app.main:app --port 8000` no repositório `meubairro-api`) e a UI (`npm run dev`), depois acesse `http://localhost:5173/meubairro-ui/`.
+
 ## Prazos acadêmicos
 
 - Entrega 1: concluída.
